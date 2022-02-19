@@ -7,6 +7,7 @@ def init_database(engine):
             """
             CREATE TABLE IF NOT EXISTS user(
                 id SERIAL,
+                telegram_id TEXT UNIQUE NOT NULL,
                 PRIMARY KEY (id)
             );
 
