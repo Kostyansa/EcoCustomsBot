@@ -6,6 +6,7 @@ import logging
 import sys
 import json
 
+import repository.database
 from telegram.error import NetworkError, Unauthorized, TelegramError
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackQueryHandler, Filters, CallbackContext
@@ -18,7 +19,7 @@ class AdapterTelegram:
 
         self.controller = controller
 
-        self.updater = Updater(token = APIKey)
+        self.updater = Updater(token = APIKey, use_context=True)
         self.bot = self.updater.bot
         self.updater.dispatcher.add_handler(CommandHandler('start', self.start_command))
         self.updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, self.echo))
@@ -123,10 +124,9 @@ class AdapterTelegram:
         logging.info(f'Send response to {query.message.chat.id}')
         logging.debug(f'Responded in {(time.time_ns() - start_time)/1000000}')
 
-    def call(self, message, chat_id):
+    def on_message(self, update, context):
         self.corr_id = str(uuid.uuid4())
-        message_entity = Message(source, str(chat_id), message)
-        return self.controller.onMessage(message_entity)
+        return self.controller.onMessage(update.message.chat.id, update.message.text)
 
     def telegram_start(self):
         self.updater.start_polling()
@@ -134,3 +134,20 @@ class AdapterTelegram:
     def start(self) -> None:
         self.telegram_start()
 
+
+def main():
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', encoding='utf-8', level=logging.DEBUG)
+    db_file = os.environ.get('DB_PATH')
+    api_key = os.environ.get('API_KEY')
+    init_db = int(os.environ.get('INIT_DB'))
+    service_factory = ServiceFactory()
+    response_service = service_factory.getResponseService()
+    user_service = service_factory.getUserService()
+    if init_db == 1:
+        repository.database.create_tables(db_file)
+    controller = Controller(response_service, user_service)
+    telegram = AdapterTelegram(api_key, controller)
+    telegram.start()
+
+if __name__ == "__main__":
+    main()

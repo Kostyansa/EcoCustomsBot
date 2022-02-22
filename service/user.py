@@ -6,3 +6,6 @@ class UserService:
 
     def save(self, user):
         self.userRepository.save(user)
+
+    def get(self, userid):
+        return self.userRepository.get_from_telegram(userid)

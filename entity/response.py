@@ -4,9 +4,6 @@ from enum import Enum
 
 @dataclass
 class Response:
-    rowid: int
-    name: str
     message: str
-
-class Action(Enum):
-    NOTHING = 1
+    replyMarkup: Optional[object]
+    photo: Optional[object]

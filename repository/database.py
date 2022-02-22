@@ -44,6 +44,7 @@ def init_database(engine):
                 id SERIAL,
                 name TEXT NOT NULL,
                 code TEXT NOT NULL,
+                amount INT NOT NULL,
                 dt DATETIME NOT NULL,
                 PRIMARY KEY(id)
             );

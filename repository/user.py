@@ -9,7 +9,7 @@ class UserRepository:
     def get(self, user : User):
         user = self.engine.execute(
         '''
-        SELECT user.id, user.telegram_id, role.name
+        SELECT user.id as id, user.telegram_id as telegram_id, role.name as role
         FROM user 
         LEFT JOIN user_has_role on user.id = user_has_role.user_id 
         LEFT JOIN role on user_has_role.role_id = role.id
@@ -17,6 +17,7 @@ class UserRepository:
         ''',
         id = user.id
         )
+        return User(user['id'], user['telegram_id'], user['role'])
 
     def save(self, user : User):
         self.engine.execute('''
@@ -29,7 +30,7 @@ class UserRepository:
     def get_from_telegram(self, telegram_id : str):
         user = self.engine.execute(
         '''
-        SELECT user.id, user.telegram_id, role.name
+        SELECT user.id as id, user.telegram_id as telegram_id, role.name as role
         FROM user 
         LEFT JOIN user_has_role on user.id = user_has_role.user_id 
         LEFT JOIN role on user_has_role.role_id = role.id
@@ -37,6 +38,7 @@ class UserRepository:
         ''',
         telegram_id = telegram_id
         )
+        return User(user['id'], user['telegram_id'], user['role'])
 
     
 
