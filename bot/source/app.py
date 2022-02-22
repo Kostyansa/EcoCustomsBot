@@ -104,11 +104,14 @@ class AdapterTelegram:
 
 def main():
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', encoding='utf-8', level=logging.DEBUG)
-    DB_URL = os.environ.get('DB_URL')
+    DB_HOST = os.environ.get('DBHOST')
+    DB_USER = os.environ.get('POSTGRES_USER')
+    DB_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
+    DB_URL = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/postgres'
     api_key = os.environ.get('API_KEY')
     engine = create_engine(DB_URL, echo=False)
     repository.database.init_database(engine)
-    service_factory = ServiceFactory()
+    service_factory = ServiceFactory.getInstance()
     response_service = service_factory.getResponseService()
     user_service = service_factory.getUserService()
     controller = Controller(response_service, user_service)

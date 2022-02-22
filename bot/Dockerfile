@@ -9,4 +9,4 @@ COPY ./source ./source
 
 WORKDIR /usr/src/app/source
 
-CMD [ "python", "-u", "./app" ]
+CMD [ "python", "-u", "./app.py" ]

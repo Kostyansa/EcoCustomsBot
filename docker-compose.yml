@@ -10,15 +10,24 @@ services:
           restart_policy:
             condition: on-failure
             delay: 60s
+        env_file:
+          - database.env
         environment:
+          - DBHOST=database
           - PYTHONUNBUFFERED=1
           - API_KEY=${API_KEY}
         networks:
           - bot_net
+    
     database:
         image: 'postgres:latest'
+        env_file:
+          - database.env
+        environment:
+          - POSTGRES_HOST_AUTH_METHOD=scram-sha-256
         volumes:
           - ./db-data/:/var/lib/postgresql/data/
+        command: postgres -c listen_addresses='*'
         networks:
           - bot_net
 

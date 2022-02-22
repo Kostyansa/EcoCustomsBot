@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import time
 import logging
@@ -52,6 +52,7 @@ class Controller:
             event = self.eventService.checkCode(text)
             if event:
                 self.eventService.addVisited(user, event)
+                self.pointsService.add(user.id, event.amount, datetime.now() + timedelta(days=2))
                 return self.responseService.success()
             else:
                 return self.responseService.doNotKnow()
