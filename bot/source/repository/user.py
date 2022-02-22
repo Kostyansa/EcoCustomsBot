@@ -1,6 +1,6 @@
 from sqlalchemy.engine import Engine
 
-from entity.user import User
+from entity.user import User, Role
 
 class UserRepository:
     def __init__(self, engine : Engine) -> None:
@@ -9,15 +9,16 @@ class UserRepository:
     def get(self, user : User):
         user = self.engine.execute(
         '''
-        SELECT user.id as id, user.telegram_id as telegram_id, role.name as role
+        SELECT id as id, telegram_id as telegram_id, role as role
         FROM user 
-        LEFT JOIN user_has_role on user.id = user_has_role.user_id 
-        LEFT JOIN role on user_has_role.role_id = role.id
         WHERE user.id = :id
         ''',
         id = user.id
-        )
-        return User(user['id'], user['telegram_id'], user['role'])
+        ).fetchone()
+        if user is not None:
+            return User(user['id'], user['telegram_id'], Role(['role']))
+        else:
+            return None
 
     def save(self, user : User):
         self.engine.execute('''
@@ -30,15 +31,16 @@ class UserRepository:
     def get_from_telegram(self, telegram_id : str):
         user = self.engine.execute(
         '''
-        SELECT user.id as id, user.telegram_id as telegram_id, role.name as role
+        SELECT id as id, telegram_id as telegram_id, role as role
         FROM user 
-        LEFT JOIN user_has_role on user.id = user_has_role.user_id 
-        LEFT JOIN role on user_has_role.role_id = role.id
-        WHERE user.telegram_id = :telegram_id
+        WHERE telegram_id = :telegram_id
         ''',
         telegram_id = telegram_id
-        )
-        return User(user['id'], user['telegram_id'], user['role'])
+        ).fetchone()
+        if user is not None:
+            return User(user['id'], user['telegram_id'], Role(['role']))
+        else:
+            return None
 
     
 

@@ -16,5 +16,14 @@ class EventService:
     def add(self, event):
         self.eventRepository.add()
 
-    def get(self):
-        return self.eventRepository.get()
+    def getAll(self):
+        return self.eventRepository.getAll()
+
+    def get(self, id):
+        return self.eventRepository.get(id)
+
+    def checkCode(self, code):
+        return self.eventRepository.checkCode(code)
+
+    def addVisited(self, user, event):
+        self.eventRepository.visited(user, event)

@@ -8,21 +8,8 @@ def init_database(engine):
             CREATE TABLE IF NOT EXISTS user(
                 id SERIAL,
                 telegram_id TEXT UNIQUE NOT NULL,
+                role INT,
                 PRIMARY KEY (id)
-            );
-
-            CREATE TABLE IF NOT EXISTS role(
-                id SERIAL,
-                name TEXT UNIQUE NOT NULL,
-                PRIMARY KEY (id)
-            );
-
-            CREATE TABLE IF NOT EXISTS user_has_role(
-                user_id INT NOT NULL,
-                role_id INT NOT NULL,
-                PRIMARY KEY(user_id, role_id),
-                FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE,
-                FOREIGN KEY(role_id) REFERENCES role(id) ON DELETE CASCADE
             );
 
             CREATE TABLE IF NOT EXISTS user_points(
@@ -55,20 +42,6 @@ def init_database(engine):
                 PRIMARY KEY(user_id, role_id),
                 FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE,
                 FOREIGN KEY(event_id) REFERENCES event(id) ON DELETE CASCADE
-            );
-
-            CREATE TABLE IF NOT EXISTS response(
-                id SERIAL,
-                message JSONB NOT NULL,
-                PRIMARY KEY(id)
-            );
-
-            CREATE TABLE IF NOT EXISTS state_transition(
-                message TEXT NOT NULL,
-                response_id INTEGER NOT NULL,
-                FOREIGN KEY(response_rowid) REFERENCES response(ROWID) ON DELETE CASCADE,
-                FOREIGN KEY(role_id) REFERENCES role(ROWID) ON DELETE CASCADE,
-                PRIMARY KEY(message, starting_state_rowid)
             );
             """
         )

@@ -27,7 +27,20 @@ class EventRepository:
             user_id = user.id, event_id = event.id
         )
 
-    def get(self):
+    def checkCode(self, code):
+        result = self.engine.execute(
+            '''
+            SELECT id, name, code, amount, dt FROM event
+            WHERE code LIKE :code
+            ''',
+            code = code
+        ).fetchone()
+        if result is not None:
+            return Event(result['id'], result['name'], result['code'], result['amount'], result['dt'])
+        else:
+            return None
+
+    def getAll(self):
         result = self.engine.execute(
             '''
             SELECT id, name, code, amount, dt FROM event
@@ -36,9 +49,21 @@ class EventRepository:
         )
         rowcount = len(result._saved_cursor._result.rows)
         events = [] 
-        if rowcount > 1:
-            for row in result:
-                events.append(Event(row['id'], row['name'], row['code'], row['amount'], row['dt']))
-        elif rowcount == 1:
-            events.append(Event(result['id'], result['name'], result['code'], result['amount'], result['dt']))
+        for row in result:
+            events.append(Event(row['id'], row['name'], row['code'], row['amount'], row['dt']))
         return events
+
+    
+    def get(self, id):
+        result = self.engine.execute(
+            '''
+            SELECT id, name, code, amount, dt FROM event
+            WHERE id = :id
+            ''',
+            id = id
+        ).fetchone()
+        if result is not None:
+            return Event(result['id'], result['name'], result['code'], result['amount'], result['dt'])
+        else:
+            return None
+        

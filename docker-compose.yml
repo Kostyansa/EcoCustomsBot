@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+    bot:
+        build: 
+          context: ./bot
+        depends_on:
+          - database
+        deploy:
+          replicas: 1
+          restart_policy:
+            condition: on-failure
+            delay: 60s
+        environment:
+          - PYTHONUNBUFFERED=1
+          - API_KEY=${API_KEY}
+        networks:
+          - bot_net
+    database:
+        image: 'postgres:latest'
+        volumes:
+          - ./db-data/:/var/lib/postgresql/data/
+        networks:
+          - bot_net
+
+
+
+networks:
+  bot_net:
+    driver: bridge

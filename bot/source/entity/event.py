@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 
 @dataclass
@@ -7,5 +8,5 @@ class Event:
     name: str
     code: str
     points: int
-    date: str
+    date: datetime
     description: str

@@ -23,5 +23,5 @@ class PointsRepository:
             WHERE (expiration_date >= NOW()) or (expiration_date is NULL)
             GROUP BY user_id
             '''
-        )
+        ).fetchone()
         return points['sum']
