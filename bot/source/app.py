@@ -52,7 +52,7 @@ class AdapterTelegram:
     def promote(self, update, context : CallbackContext) -> None:
         logging.info(f'Events command from {update.message.chat.id}')
         args = context.args
-        response = self.controller.onCommandAdd(update.message.chat.id, args[0])
+        response = self.controller.onCommandPromote(update.message.chat.id, args[0])
         self.send_response(update.message.chat.id, response)
 
     def withdraw(self, update, context : CallbackContext) -> None:
