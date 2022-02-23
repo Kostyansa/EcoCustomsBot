@@ -9,3 +9,6 @@ class UserService:
 
     def get(self, userid):
         return self.userRepository.get_from_telegram(userid)
+
+    def elevate(self, user):
+        self.userRepository.elevate_user(user)

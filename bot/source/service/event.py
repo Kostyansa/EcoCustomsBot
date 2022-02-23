@@ -14,7 +14,7 @@ class EventService:
         self.eventRepository = eventRepository
 
     def add(self, event):
-        self.eventRepository.add()
+        self.eventRepository.add(event)
 
     def getAll(self):
         return self.eventRepository.getAll()

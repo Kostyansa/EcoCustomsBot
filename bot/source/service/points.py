@@ -13,8 +13,8 @@ class PointsService:
         ):
         self.pointsRepository = pointsRepository
 
-    def add(self, userid, points, expiration_date):
-        self.pointsRepository.add(userid, points, expiration_date)
+    def add(self, userid, points):
+        self.pointsRepository.add(userid, points)
 
     def get(self, userid):
         return self.pointsRepository.getForUser(userid)

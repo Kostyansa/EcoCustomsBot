@@ -15,7 +15,7 @@ class RepositoryFactory:
         DB_USER = os.environ.get('POSTGRES_USER')
         DB_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
         DB_URL = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/postgres'
-        engine = create_engine(DB_URL, echo=False)
+        self.engine = create_engine(DB_URL, echo=False)
         self.eventRepository = EventRepository(self.engine)
         self.userRepository = UserRepository(self.engine)
         self.pointsRepository = PointsRepository(self.engine)

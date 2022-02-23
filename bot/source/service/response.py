@@ -7,10 +7,11 @@ from urllib import response
 from entity.event import Event
 from entity.response import Response
 import qrcode
+import io
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, Update
 
-from config.config import ABOUT, BALANCE, COMMAND_NOT_FOUND, DO_NOT_KNOW, EVENT, GENERIC_ERROR, NOT_ENOUGH_POINTS, POINTS, EVENTS, START, USER_NOT_FOUND, USER_NOT_REGISTERED
+from config.config import ABOUT, BALANCE, COMMAND_NOT_FOUND, DO_NOT_KNOW, EVENT, GENERIC_ERROR, NOT_ENOUGH_POINTS, POINTS, EVENTS, START, USER_NOT_FOUND, USER_NOT_REGISTERED, NO_EVENTS
 
 class ResponseService:
 
@@ -46,7 +47,13 @@ class ResponseService:
 
     def points(self, user, points):
         response = Response(BALANCE.format(points))
-        response.photo = qrcode.make(user.telegram_id).make_image()
+        qr = qrcode.QRCode()
+        qr.add_data(user.telegram_id)
+        img = qr.make_image()
+        buf = io.BytesIO()
+        img.save(buf, format='JPEG')
+        byte_im = buf.getvalue()
+        response.photo = byte_im
         return response
 
     def success(self):
@@ -67,12 +74,29 @@ class ResponseService:
 
     def event(self, event : Event):
         response = Response(EVENT.format(event.name, event.date, event.description))
+        return response
+
+    def eventAdmin(self, event : Event):
+        response = Response(EVENT.format(event.name, event.date, event.description))
+        qr = qrcode.QRCode()
+        qr.add_data(event.code)
+        img = qr.make_image()
+        buf = io.BytesIO()
+        img.save(buf, format='JPEG')
+        byte_im = buf.getvalue()
+        response.photo = byte_im
+        return response
 
     def events(self, events):
         response = Response(EVENTS)
         keyboard = []
         for event in events:
             keyboard.append(InlineKeyboardButton(event.name, callback_data=f"event {event.id}"))
+        response.replyMarkup = InlineKeyboardMarkup([keyboard])
+        return response
+
+    def noEvents(self):
+        response = Response(NO_EVENTS)
         return response
 
     def generic_error(self, error):

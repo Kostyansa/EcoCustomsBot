@@ -25,6 +25,7 @@ class AdapterTelegram:
         self.bot = self.updater.bot
         self.updater.dispatcher.add_handler(CommandHandler('start', self.start))
         self.updater.dispatcher.add_handler(CommandHandler('events', self.events))
+        self.updater.dispatcher.add_handler(CommandHandler('promote', self.promote))
         self.updater.dispatcher.add_handler(CommandHandler('add', self.add))
         self.updater.dispatcher.add_handler(CommandHandler('withdraw', self.withdraw))
         self.updater.dispatcher.add_handler(CommandHandler('add_event', self.add_event))
@@ -32,12 +33,12 @@ class AdapterTelegram:
         self.updater.dispatcher.add_handler(CallbackQueryHandler(self.on_callback))
         self.updater.dispatcher.add_error_handler(self.error_handler)
 
-    def start(self, update, context) -> None:
+    def start(self, update, context : CallbackContext) -> None:
         logging.info(f'Start command from {update.message.chat.id}')
         response = self.controller.onCommandStart(update.message.chat.id)
         self.send_response(update.message.chat.id, response)
 
-    def events(self, update, context) -> None:
+    def events(self, update, context : CallbackContext) -> None:
         logging.info(f'Events command from {update.message.chat.id}')
         response = self.controller.onCommandEvents(update.message.chat.id)
         self.send_response(update.message.chat.id, response)
@@ -45,13 +46,19 @@ class AdapterTelegram:
     def add(self, update, context : CallbackContext) -> None:
         logging.info(f'Events command from {update.message.chat.id}')
         args = context.args
-        response = self.controller.onCommandAdd(update.message.chat.id, args[0], args[1], args[2])
+        response = self.controller.onCommandAdd(update.message.chat.id, args[0], args[1])
+        self.send_response(update.message.chat.id, response)
+
+    def promote(self, update, context : CallbackContext) -> None:
+        logging.info(f'Events command from {update.message.chat.id}')
+        args = context.args
+        response = self.controller.onCommandAdd(update.message.chat.id, args[0])
         self.send_response(update.message.chat.id, response)
 
     def withdraw(self, update, context : CallbackContext) -> None:
         logging.info(f'Events command from {update.message.chat.id}')
         args = context.args
-        response = self.controller.onCommandWithdraw(update.message.chat.id, args[0], args[1], args[2])
+        response = self.controller.onCommandWithdraw(update.message.chat.id, args[0], args[1])
         self.send_response(update.message.chat.id, response)
 
     def add_event(self, update, context : CallbackContext) -> None:
@@ -69,7 +76,7 @@ class AdapterTelegram:
 
     def send_response(self, chat_id, response : Response):
         if response.replyMarkup:
-            self.bot.send_message(chat_id, response.message, response.replyMarkup)
+            self.bot.send_message(chat_id, response.message, reply_markup=response.replyMarkup)
         else:
             self.bot.send_message(chat_id, response.message)
         if response.photo:
@@ -78,7 +85,7 @@ class AdapterTelegram:
     def on_message(self, update, context) -> None:
         logging.info(f'Got message from {update.message.chat.id}')
         logging.debug(f'Message: {update.message.text}')
-        response = self.on_message(update.message.text, update.message.chat.id)
+        response = self.controller.onMessage(update.message.chat.id, update.message.text)
         self.send_response(update.message.chat.id, response)
         logging.info(f'Sent response to {update.message.chat.id}')
 
@@ -87,19 +94,12 @@ class AdapterTelegram:
         logging.info(f'Got callback message from {query.message.chat.id}')
         logging.debug(f'Got message: {query.data}')
         query.answer()
-        response = self.on_message(query.data, query.message.chat.id)
+        response = self.controller.onMessage(query.message.chat.id, query.data)
         self.send_response(query.message.chat.id, response)
         logging.info(f'Send response to {query.message.chat.id}')
 
-    def on_message(self, update, context):
-        self.corr_id = str(uuid.uuid4())
-        return self.controller.onMessage(update.message.chat.id, update.message.text)
-
     def telegram_start(self):
         self.updater.start_polling()
-
-    def start(self) -> None:
-        self.telegram_start()
 
 
 def main():
@@ -114,9 +114,12 @@ def main():
     service_factory = ServiceFactory.getInstance()
     response_service = service_factory.getResponseService()
     user_service = service_factory.getUserService()
-    controller = Controller(response_service, user_service)
+    event_service = service_factory.getEventService()
+    points_service = service_factory.getPointsService()
+    controller = Controller(response_service, user_service, points_service, event_service)
+    logging.info(f'Admin key :{controller.admin_key}')
     telegram = AdapterTelegram(api_key, controller)
-    telegram.start()
+    telegram.telegram_start()
 
 if __name__ == "__main__":
     main()

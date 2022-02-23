@@ -15,7 +15,6 @@ services:
         environment:
           - DBHOST=database
           - PYTHONUNBUFFERED=1
-          - API_KEY=${API_KEY}
         networks:
           - bot_net
     

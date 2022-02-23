@@ -7,7 +7,7 @@ def init_database(engine):
             """
             CREATE TABLE IF NOT EXISTS public.user(
                 id SERIAL,
-                telegram_id TEXT UNIQUE NOT NULL,
+                telegram_id INT UNIQUE NOT NULL,
                 role INT,
                 PRIMARY KEY (id)
             );
@@ -16,15 +16,8 @@ def init_database(engine):
                 id SERIAL,
                 user_id INT NOT NULL,
                 points INT NOT NULL,
-                until timestamp NOT NULL,
                 PRIMARY KEY(id),
                 FOREIGN KEY(user_id) REFERENCES public.user(id) ON DELETE CASCADE
-            );
-
-            CREATE TABLE IF NOT EXISTS public.response(
-                id SERIAL,
-                message JSONB NOT NULL,
-                PRIMARY KEY(id)
             );
 
             CREATE TABLE IF NOT EXISTS public.event(
@@ -33,6 +26,7 @@ def init_database(engine):
                 code TEXT NOT NULL,
                 amount INT NOT NULL,
                 dt timestamp NOT NULL,
+                description TEXT NOT NULL,
                 PRIMARY KEY(id)
             );
 

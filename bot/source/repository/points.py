@@ -1,27 +1,30 @@
 from sqlalchemy.engine import Engine
 
+from sqlalchemy.sql import text
+
 class PointsRepository:
     def __init__(self, engine : Engine) -> None:
         self.engine = engine
 
-    def add(self, userid, amount, expiration_date):
+    def add(self, user, amount):
         self.engine.execute(
-            '''
-            INSERT INTO user_points(user_id, points, until)
-            VALUES(:user_id, :points, :until)
-            ''',
-            user_id = userid,
-            points = amount,
-            until = expiration_date
+            text('''
+            INSERT INTO user_points(user_id, points)
+            VALUES(:user_id, :points)
+            '''),
+            user_id = user.id,
+            points = amount
         )
 
     def getForUser(self, userid):
         points = self.engine.execute(
-            '''
-            SELECT SUM(points) as sum
-            FROM user_points 
-            WHERE (expiration_date >= NOW()) or (expiration_date is NULL)
+            text('''
+            SELECT COALESCE(SUM(points), 0) as sum
+            FROM user_points
             GROUP BY user_id
-            '''
+            ''')
         ).fetchone()
-        return points['sum']
+        if points:
+            return points['sum']
+        else:
+            return 0
