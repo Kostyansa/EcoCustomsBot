@@ -24,7 +24,9 @@ class AdapterTelegram:
         self.updater = Updater(token = APIKey, use_context=True)
         self.bot = self.updater.bot
         self.updater.dispatcher.add_handler(CommandHandler('start', self.start))
+        self.updater.dispatcher.add_handler(CommandHandler('help', self.help))
         self.updater.dispatcher.add_handler(CommandHandler('events', self.events))
+        self.updater.dispatcher.add_handler(CommandHandler('users', self.users))
         self.updater.dispatcher.add_handler(CommandHandler('promote', self.promote))
         self.updater.dispatcher.add_handler(CommandHandler('add', self.add))
         self.updater.dispatcher.add_handler(CommandHandler('withdraw', self.withdraw))
@@ -39,33 +41,44 @@ class AdapterTelegram:
         self.send_response(update.message.chat.id, response)
 
     def events(self, update, context : CallbackContext) -> None:
-        logging.info(f'Events command from {update.message.chat.id}')
+        logging.info(f'Command from {update.message.chat.id}')
         response = self.controller.onCommandEvents(update.message.chat.id)
         self.send_response(update.message.chat.id, response)
 
     def add(self, update, context : CallbackContext) -> None:
-        logging.info(f'Events command from {update.message.chat.id}')
+        logging.info(f'Command from {update.message.chat.id}')
         args = context.args
         response = self.controller.onCommandAdd(update.message.chat.id, args[0], args[1])
         self.send_response(update.message.chat.id, response)
 
     def promote(self, update, context : CallbackContext) -> None:
-        logging.info(f'Events command from {update.message.chat.id}')
+        logging.info(f'Command from {update.message.chat.id}')
         args = context.args
         response = self.controller.onCommandPromote(update.message.chat.id, args[0])
         self.send_response(update.message.chat.id, response)
 
     def withdraw(self, update, context : CallbackContext) -> None:
-        logging.info(f'Events command from {update.message.chat.id}')
+        logging.info(f'Command from {update.message.chat.id}')
         args = context.args
         response = self.controller.onCommandWithdraw(update.message.chat.id, args[0], args[1])
         self.send_response(update.message.chat.id, response)
 
     def add_event(self, update, context : CallbackContext) -> None:
-        logging.info(f'Events command from {update.message.chat.id}')
+        logging.info(f'Command from {update.message.chat.id}')
         args = context.args
         response = self.controller.onCommandAddEvent(update.message.chat.id, args[0], args[1], args[2], (" ").join(args[3:]))
         self.send_response(update.message.chat.id, response)
+
+    def help(self, update, context : CallbackContext) -> None:
+        logging.info(f'Command from {update.message.chat.id}')
+        response = self.controller.onCommandHelp(update.message.chat.id)
+        self.send_response(update.message.chat.id, response)
+
+    def users(self, update, context : CallbackContext) -> None:
+        logging.info(f'Command from {update.message.chat.id}')
+        response = self.controller.onCommandUsers(update.message.chat.id)
+        self.send_response(update.message.chat.id, response)
+    
 
     def error_handler(self, update, context) -> None:
         logging.warning(f'Error while sendind message', exc_info=context.error)

@@ -1,6 +1,5 @@
 import functools
 import logging
-from sre_constants import SUCCESS
 import time
 from concurrent import futures
 from urllib import response
@@ -11,7 +10,7 @@ import io
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, Update
 
-from config.config import ABOUT, BALANCE, COMMAND_NOT_FOUND, DO_NOT_KNOW, EVENT, GENERIC_ERROR, NOT_ENOUGH_POINTS, POINTS, EVENTS, START, USER_NOT_FOUND, USER_NOT_REGISTERED, NO_EVENTS
+from config.config import ABOUT, BALANCE, COMMAND_NOT_FOUND, DO_NOT_KNOW, EVENT, GENERIC_ERROR, NOT_ENOUGH_POINTS, POINTS, EVENTS, START, USER_NOT_FOUND, USER_NOT_REGISTERED, NO_EVENTS, HELP, HELP_ADMIN, USERS, SUCCESS
 
 class ResponseService:
 
@@ -102,4 +101,21 @@ class ResponseService:
     def generic_error(self, error):
         response = Response(GENERIC_ERROR.format(error))
         return response
+
+    def help(self):
+        response = Response(HELP)
+        return response
+
+    def help_admin(self):
+        response = Response(HELP_ADMIN)
+        return response
+
+    def users(self, users):
+        response = Response(USERS)
+        keyboard = []
+        for user in users:
+            keyboard.append(InlineKeyboardButton(f'Id:{user.telegram_id}, Points:{user.points}', callback_data=f"user {user.id}"))
+        response.replyMarkup = InlineKeyboardMarkup([keyboard])
+        return response
+
 

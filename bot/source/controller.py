@@ -145,3 +145,20 @@ class Controller:
                 return self.responseService.generic_error("Ошибка в аргументах")
         else:
             return self.responseService.commandNotFound()
+    
+    def onCommandHelp(self, userid):
+        user = self.userService.get(userid)
+        if user.role == Role.ADMIN:
+            return self.responseService.help_admin()
+        else:
+            return self.responseService.help()
+
+    def onCommandUsers(self, userid):
+        user = self.userService.get(userid)
+        if user.role == Role.ADMIN:
+            users = self.userService.getAll()
+            for user in users:
+                user.points = self.pointsService.get(user)
+            return self.responseService.users(users)
+        else:
+            return self.responseService.commandNotFound()

@@ -16,13 +16,15 @@ class PointsRepository:
             points = amount
         )
 
-    def getForUser(self, userid):
+    def getForUser(self, user):
         points = self.engine.execute(
             text('''
             SELECT COALESCE(SUM(points), 0) as sum
             FROM user_points
+            WHERE user_id = :user_id
             GROUP BY user_id
-            ''')
+            '''),
+            user_id = user.id
         ).fetchone()
         if points:
             return points['sum']

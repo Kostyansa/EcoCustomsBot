@@ -21,6 +21,18 @@ class UserRepository:
             return User(user['id'], user['telegram_id'], role = Role(user['role']))
         else:
             return None
+            
+    def getAll(self):
+        result = self.engine.execute(
+        text('''
+        SELECT id as id, telegram_id as telegram_id, role as role
+        FROM public.user 
+        ''')
+        ).fetchall()
+        users = []
+        for user in result:
+            users.append(User(user['id'], user['telegram_id'], role = Role(user['role'])))
+        return users
 
     def elevate_user(self, user: User):
         self.engine.execute(
