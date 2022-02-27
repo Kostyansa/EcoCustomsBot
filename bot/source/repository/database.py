@@ -5,9 +5,10 @@ def init_database(engine):
     try:
         engine.execute(
             """
+
             CREATE TABLE IF NOT EXISTS public.user(
                 id SERIAL,
-                telegram_id INT UNIQUE NOT NULL,
+                telegram_id TEXT UNIQUE NOT NULL,
                 role INT,
                 PRIMARY KEY (id)
             );

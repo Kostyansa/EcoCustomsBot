@@ -2,7 +2,6 @@ import functools
 import logging
 import time
 from concurrent import futures
-from urllib import response
 from entity.event import Event
 from entity.response import Response
 import qrcode
@@ -10,7 +9,7 @@ import io
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, Update
 
-from config.config import ABOUT, BALANCE, COMMAND_NOT_FOUND, DO_NOT_KNOW, EVENT, GENERIC_ERROR, NOT_ENOUGH_POINTS, POINTS, EVENTS, START, USER_NOT_FOUND, USER_NOT_REGISTERED, NO_EVENTS, HELP, HELP_ADMIN, USERS, SUCCESS
+from config.config import ABOUT_BUTTON, BALANCE, COMMAND_NOT_FOUND, DO_NOT_KNOW, EVENT, GENERIC_ERROR, NOT_ENOUGH_POINTS, POINTS, EVENTS, START, USER_NOT_FOUND, USER_NOT_REGISTERED, NO_EVENTS, HELP, HELP_ADMIN, USERS, SUCCESS, NOT_STARTED, EVENT_ADMIN
 
 class ResponseService:
 
@@ -25,7 +24,7 @@ class ResponseService:
     def start(self):
         response = Response(START)
         keyboard = [
-            [ABOUT],
+            [ABOUT_BUTTON],
             [POINTS],
             [EVENTS]
         ]
@@ -33,7 +32,7 @@ class ResponseService:
         return response
 
     def about(self):
-        response = Response(ABOUT)
+        response = Response(ABOUT_BUTTON)
         return response
 
     def doNotKnow(self):
@@ -76,7 +75,7 @@ class ResponseService:
         return response
 
     def eventAdmin(self, event : Event):
-        response = Response(EVENT.format(event.name, event.date, event.description))
+        response = Response(EVENT_ADMIN.format(event.id, event.name, event.date, event.description))
         qr = qrcode.QRCode()
         qr.add_data(event.code)
         img = qr.make_image()
@@ -90,8 +89,8 @@ class ResponseService:
         response = Response(EVENTS)
         keyboard = []
         for event in events:
-            keyboard.append(InlineKeyboardButton(event.name, callback_data=f"event {event.id}"))
-        response.replyMarkup = InlineKeyboardMarkup([keyboard])
+            keyboard.append([InlineKeyboardButton(event.name, callback_data=f"event {event.id}")])
+        response.replyMarkup = InlineKeyboardMarkup(keyboard)
         return response
 
     def noEvents(self):
@@ -114,8 +113,12 @@ class ResponseService:
         response = Response(USERS)
         keyboard = []
         for user in users:
-            keyboard.append(InlineKeyboardButton(f'Id:{user.telegram_id}, Points:{user.points}', callback_data=f"user {user.id}"))
-        response.replyMarkup = InlineKeyboardMarkup([keyboard])
+            keyboard.append([InlineKeyboardButton(f'Id:{user.telegram_id}, Points:{user.points}', callback_data=f"user {user.id}")])
+        response.replyMarkup = InlineKeyboardMarkup(keyboard)
+        return response
+
+    def alreadyUsed(self):
+        response = Response(NOT_STARTED)
         return response
 
 

@@ -31,6 +31,7 @@ class AdapterTelegram:
         self.updater.dispatcher.add_handler(CommandHandler('add', self.add))
         self.updater.dispatcher.add_handler(CommandHandler('withdraw', self.withdraw))
         self.updater.dispatcher.add_handler(CommandHandler('add_event', self.add_event))
+        self.updater.dispatcher.add_handler(CommandHandler('remove_event', self.remove_event))
         self.updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, self.on_message))
         self.updater.dispatcher.add_handler(CallbackQueryHandler(self.on_callback))
         self.updater.dispatcher.add_error_handler(self.error_handler)
@@ -42,13 +43,19 @@ class AdapterTelegram:
 
     def events(self, update, context : CallbackContext) -> None:
         logging.info(f'Command from {update.message.chat.id}')
-        response = self.controller.onCommandEvents(update.message.chat.id)
+        response = self.controller.onCommandEvents()
         self.send_response(update.message.chat.id, response)
 
     def add(self, update, context : CallbackContext) -> None:
         logging.info(f'Command from {update.message.chat.id}')
         args = context.args
         response = self.controller.onCommandAdd(update.message.chat.id, args[0], args[1])
+        self.send_response(update.message.chat.id, response)
+    
+    def remove_event(self, update, context : CallbackContext) -> None:
+        logging.info(f'Command from {update.message.chat.id}')
+        args = context.args
+        response = self.controller.onCommandRemoveEvent(update.message.chat.id, args[0])
         self.send_response(update.message.chat.id, response)
 
     def promote(self, update, context : CallbackContext) -> None:
@@ -66,7 +73,20 @@ class AdapterTelegram:
     def add_event(self, update, context : CallbackContext) -> None:
         logging.info(f'Command from {update.message.chat.id}')
         args = context.args
-        response = self.controller.onCommandAddEvent(update.message.chat.id, args[0], args[1], args[2], (" ").join(args[3:]))
+        name = []
+        description = []
+        name_flag = 0
+        description_flag = 0
+        for i in range(len(args)):
+            if args[i] == "--name":
+                name_flag = i
+            elif args[i] == "--description":
+                description_flag = i
+        for i in range(name_flag + 1, description_flag):
+            name.append(args[i])
+        for i in range(description_flag + 1, len(args)):
+            description.append(args[i])
+        response = self.controller.onCommandAddEvent(update.message.chat.id, ' '.join(name), args[0], args[1], ' '.join(description))
         self.send_response(update.message.chat.id, response)
 
     def help(self, update, context : CallbackContext) -> None:

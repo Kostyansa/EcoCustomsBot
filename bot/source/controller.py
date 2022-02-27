@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
 import os
 import time
 import logging
-from urllib import response
 import uuid
+import base64
 
 from entity.user import User
 from service.event import EventService
@@ -13,8 +13,7 @@ from service.points import PointsService
 from entity.event import Event
 from entity.user import Role
 
-from config.config import ABOUT, POINTS, EVENTS
-
+from config.config import ABOUT_BUTTON, POINTS, EVENTS
 
 class Controller:
 
@@ -32,14 +31,14 @@ class Controller:
         self.eventService = eventService
 
     def onMessage(self, userid, text):
+        user = self.userService.get(userid)
         if text == POINTS:
-            user = self.userService.get(userid)
             if user is not None:
-                points = self.pointsService.get(user.id)
+                points = self.pointsService.get(user)
                 return self.responseService.points(user, points)
             else:
                 return self.responseService.notRegistered()
-        elif text == ABOUT:
+        elif text == ABOUT_BUTTON:
             return self.responseService.about()
         elif text == EVENTS:
             return self.onCommandEvents()
@@ -47,7 +46,6 @@ class Controller:
             event_id = int(text.split(" ")[1])
             event = self.eventService.get(event_id)
             if event is not None:
-                user = self.userService.get(userid)
                 if user.role == Role.ADMIN:
                     return self.responseService.eventAdmin(event)
                 else:
@@ -57,22 +55,25 @@ class Controller:
         elif text == self.admin_key:
             if self.admin_key:
                 self.admin_key = None
-                user = self.userService.get(userid)
                 self.userService.elevate(user)
                 return self.responseService.success()
         else:
             event = self.eventService.checkCode(text)
+            logging.debug(event)
             if event:
-                self.eventService.addVisited(user, event)
-                self.pointsService.add(user.id, event.amount)
-                return self.responseService.success()
+                if not self.eventService.checkVisited(user, event):
+                    self.eventService.addVisited(user, event)
+                    self.pointsService.add(user, event.points)
+                    return self.responseService.success()
+                else:
+                    return self.responseService.alreadyUsed()
             else:
                 return self.responseService.doNotKnow()
 
     def onCommandStart(self, userid):
         user = self.userService.get(userid)
         if user is None:
-            user = User(None, userid, None)
+            user = User(None, userid.to_bytes(4, 'big').hex(), None)
             self.userService.save(user)
         response = self.responseService.start()
         return response
@@ -141,11 +142,25 @@ class Controller:
                 event = Event(None, name, str(uuid.uuid4())[0:7], int(amount), datetime.strptime(date, "%d.%m.%YT%H:%M"), description)
                 self.eventService.add(event)
                 return self.responseService.success()
-            except ValueError:
+            except ValueError as err:
+                logging.info(err)
                 return self.responseService.generic_error("Ошибка в аргументах")
         else:
             return self.responseService.commandNotFound()
     
+    def onCommandRemoveEvent(self, userid, id):
+        user = self.userService.get(userid)
+        if user.role == Role.ADMIN:
+            try:
+                event = self.eventService.get(id)
+                self.eventService.remove(event)
+                return self.responseService.success()
+            except ValueError as err:
+                logging.info(err)
+                return self.responseService.generic_error("Ошибка в аргументах")
+        else:
+            return self.responseService.commandNotFound()
+
     def onCommandHelp(self, userid):
         user = self.userService.get(userid)
         if user.role == Role.ADMIN:

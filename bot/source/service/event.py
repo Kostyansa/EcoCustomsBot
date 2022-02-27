@@ -16,6 +16,9 @@ class EventService:
     def add(self, event):
         self.eventRepository.add(event)
 
+    def remove(self, event):
+        self.eventRepository.remove(event)
+
     def getAll(self):
         return self.eventRepository.getAll()
 
@@ -27,3 +30,6 @@ class EventService:
 
     def addVisited(self, user, event):
         self.eventRepository.visited(user, event)
+
+    def checkVisited(self, user, event):
+        return self.eventRepository.checkVisited(user, event)
