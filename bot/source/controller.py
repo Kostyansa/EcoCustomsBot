@@ -31,7 +31,7 @@ class Controller:
         self.eventService = eventService
 
     def onMessage(self, userid, text):
-        user = self.userService.get(userid)
+        user = self.userService.getByTelegramId(userid)
         if text == POINTS:
             if user is not None:
                 points = self.pointsService.get(user)
@@ -71,7 +71,7 @@ class Controller:
                 return self.responseService.doNotKnow()
 
     def onCommandStart(self, userid):
-        user = self.userService.get(userid)
+        user = self.userService.getByTelegramId(userid)
         if user is None:
             user = User(None, userid.to_bytes(4, 'big').hex(), None)
             self.userService.save(user)
@@ -86,7 +86,7 @@ class Controller:
             return self.responseService.noEvents()
 
     def onCommandAdd(self, userid, target, amount):
-        user = self.userService.get(userid)
+        user = self.userService.getByTelegramId(userid)
         if user.role == Role.ADMIN:
             try:
                 amount = int(amount)
@@ -102,7 +102,7 @@ class Controller:
             return self.responseService.commandNotFound()
 
     def onCommandPromote(self, userid, target):
-        user = self.userService.get(userid)
+        user = self.userService.getByTelegramId(userid)
         if user.role == Role.ADMIN:
             try:
                 target = self.userService.get(target)
@@ -117,13 +117,13 @@ class Controller:
             return self.responseService.commandNotFound()
 
     def onCommandWithdraw(self, userid, target, amount):
-        user = self.userService.get(userid)
+        user = self.userService.getByTelegramId(userid)
         if user.role == Role.ADMIN:
             try:
                 amount = int(amount)
                 target = self.userService.get(target)
                 if target is not None:
-                    if self.pointsService.get(userid) >= amount:
+                    if self.pointsService.get(target) >= amount:
                         self.pointsService.add(target, -amount)
                         return self.responseService.success()
                     else:
@@ -136,7 +136,7 @@ class Controller:
             return self.responseService.commandNotFound()
 
     def onCommandAddEvent(self, userid, name, date, amount, description):
-        user = self.userService.get(userid)
+        user = self.userService.getByTelegramId(userid)
         if user.role == Role.ADMIN:
             try:
                 event = Event(None, name, str(uuid.uuid4())[0:7], int(amount), datetime.strptime(date, "%d.%m.%YT%H:%M"), description)
@@ -149,7 +149,7 @@ class Controller:
             return self.responseService.commandNotFound()
     
     def onCommandRemoveEvent(self, userid, id):
-        user = self.userService.get(userid)
+        user = self.userService.getByTelegramId(userid)
         if user.role == Role.ADMIN:
             try:
                 event = self.eventService.get(id)
@@ -162,14 +162,14 @@ class Controller:
             return self.responseService.commandNotFound()
 
     def onCommandHelp(self, userid):
-        user = self.userService.get(userid)
+        user = self.userService.getByTelegramId(userid)
         if user.role == Role.ADMIN:
             return self.responseService.help_admin()
         else:
             return self.responseService.help()
 
     def onCommandUsers(self, userid):
-        user = self.userService.get(userid)
+        user = self.userService.getByTelegramId(userid)
         if user.role == Role.ADMIN:
             users = self.userService.getAll()
             for user in users:

@@ -73,6 +73,7 @@ class EventRepository:
             SET TIMEZONE='posix/Europe/Samara';
             SELECT id, name, code, amount, dt, description FROM event
             WHERE dt >= (NOW() - '1 day'::interval)
+            ORDER BY dt
             ''')
         ).fetchall()
         events = [] 

@@ -7,8 +7,11 @@ class UserService:
     def save(self, user):
         self.userRepository.save(user)
 
-    def get(self, userid):
+    def getByTelegramId(self, userid):
         return self.userRepository.get_from_telegram(userid.to_bytes(4, 'big').hex())
+
+    def get(self, userid):
+        return self.userRepository.get_from_telegram(userid)
 
     def getAll(self):
         return self.userRepository.getAll()
