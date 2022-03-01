@@ -9,7 +9,7 @@ import io
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, Update
 
-from config.config import ABOUT_BUTTON, BALANCE, COMMAND_NOT_FOUND, DO_NOT_KNOW, EVENT, GENERIC_ERROR, NOT_ENOUGH_POINTS, POINTS, EVENTS, START, USER_NOT_FOUND, USER_NOT_REGISTERED, NO_EVENTS, HELP, HELP_ADMIN, USERS, SUCCESS, NOT_STARTED, EVENT_ADMIN
+from config.config import ABOUT_BUTTON, BALANCE, COMMAND_NOT_FOUND, DO_NOT_KNOW, EVENT, GENERIC_ERROR, NOT_ENOUGH_POINTS, POINTS, EVENTS, START, USER_NOT_FOUND, USER_NOT_REGISTERED, NO_EVENTS, HELP, HELP_ADMIN, USERS, SUCCESS, NOT_STARTED, EVENT_ADMIN, ABOUT
 
 class ResponseService:
 
@@ -32,7 +32,7 @@ class ResponseService:
         return response
 
     def about(self):
-        response = Response(ABOUT_BUTTON)
+        response = Response(ABOUT)
         return response
 
     def doNotKnow(self):
