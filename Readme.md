@@ -7,11 +7,11 @@
  - POSTGRES_DB - определяет имя стандартной базы данных, создаваемой при первом запуске
  - API_KEY - Ключ API Telegram от бота, предназначеного для использования в данной программе, [как создать бота Telegram](https://core.telegram.org/bots#3-how-do-i-create-a-bot)
 
+Для запуска бота необходим [docker compose](https://docs.docker.com/compose/).
 Бот запускается с использованием команды "docker compose up --build" или "docker-compose up --build".
 В процессе инициализации базы данных, сервис bot может упасть с ошибкой и перезапуститься, это будет происходить пока база данных не инициализируется.
 База данных создаст папку db-data для хранения данных, путь к папке можно изменить в файле docker-compose.yml свойство volumes, часть до :.
 
-Для запуска бота необходим [docker compose](https://docs.docker.com/compose/).
 Текст различных ответов бота находится в файле bot/source/config/config.py
 Из них стоит выделить:
  - START - приветсвие на команду /start
