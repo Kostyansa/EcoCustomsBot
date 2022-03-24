@@ -73,7 +73,7 @@ class Controller:
     def onCommandStart(self, userid):
         user = self.userService.getByTelegramId(userid)
         if user is None:
-            user = User(None, userid.to_bytes(4, 'big').hex(), None)
+            user = User(None, int(userid), None)
             self.userService.save(user)
         response = self.responseService.start()
         return response
@@ -90,6 +90,7 @@ class Controller:
         if user.role == Role.ADMIN:
             try:
                 amount = int(amount)
+                target = int(target, base = 16)
                 target = self.userService.get(target)
                 if target is not None:
                     self.pointsService.add(target, amount)
@@ -105,6 +106,7 @@ class Controller:
         user = self.userService.getByTelegramId(userid)
         if user.role == Role.ADMIN:
             try:
+                target = int(target, base = 16)
                 target = self.userService.get(target)
                 if target is not None:
                     self.userService.elevate(target)
@@ -121,6 +123,7 @@ class Controller:
         if user.role == Role.ADMIN:
             try:
                 amount = int(amount)
+                target = int(target, base = 16)
                 target = self.userService.get(target)
                 if target is not None:
                     if self.pointsService.get(target) >= amount:

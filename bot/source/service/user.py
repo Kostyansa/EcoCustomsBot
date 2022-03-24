@@ -8,7 +8,7 @@ class UserService:
         self.userRepository.save(user)
 
     def getByTelegramId(self, userid):
-        return self.userRepository.get_from_telegram(userid.to_bytes(4, 'big').hex())
+        return self.userRepository.get_from_telegram(userid)
 
     def get(self, userid):
         return self.userRepository.get_from_telegram(userid)

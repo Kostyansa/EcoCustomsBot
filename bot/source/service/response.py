@@ -46,7 +46,7 @@ class ResponseService:
     def points(self, user, points):
         response = Response(BALANCE.format(points))
         qr = qrcode.QRCode()
-        qr.add_data(user.telegram_id)
+        qr.add_data(hex(user.telegram_id)[2:])
         img = qr.make_image()
         buf = io.BytesIO()
         img.save(buf, format='JPEG')

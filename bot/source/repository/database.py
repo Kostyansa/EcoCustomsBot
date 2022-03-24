@@ -8,7 +8,7 @@ def init_database(engine):
 
             CREATE TABLE IF NOT EXISTS public.user(
                 id SERIAL,
-                telegram_id TEXT UNIQUE NOT NULL,
+                telegram_id INTEGER UNIQUE NOT NULL,
                 role INT,
                 PRIMARY KEY (id)
             );
