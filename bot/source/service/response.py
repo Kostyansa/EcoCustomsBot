@@ -113,7 +113,7 @@ class ResponseService:
         response = Response(USERS)
         keyboard = []
         for user in users:
-            keyboard.append([InlineKeyboardButton(f'Id:{user.telegram_id}, Points:{user.points}', callback_data=f"user {user.id}")])
+            keyboard.append([InlineKeyboardButton(f'Id:{user.telegram_id}, code:{hex(user.telegram_id)[2:]}, Points:{user.points}', callback_data=f"user {user.id}")])
         response.replyMarkup = InlineKeyboardMarkup(keyboard)
         return response
 
